@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace HW22
 {
-    public class Tree<T>  where T : IComparable<T>
+    public class Tree<T>  : IEnumerable<T> where T : IComparable<T>
     {
         private Node<T>? _head;
 
@@ -26,13 +27,12 @@ namespace HW22
 
             else
             {
-                AddTo(_head, value);
+                AddHelper(_head, value);
             }
             _count++;
         }
 
-        // Рекурсивный алгоритм 
-        private void AddTo(Node<T> node, T value)
+        private void AddHelper(Node<T> node, T value)
         {
             // Первый случай: значение добавляемого узла меньше чем значение текущего. 
 
@@ -47,7 +47,7 @@ namespace HW22
                 else
                 {
                     // повторная итерация               
-                    AddTo(node.Left, value);
+                    AddHelper(node.Left, value);
                 }
             }
             // Второй случай: значение добавляемого узла равно или больше текущего значения      
@@ -63,9 +63,55 @@ namespace HW22
                 {
                     // повторная итерация
 
-                    AddTo(node.Right, value);
+                    AddHelper(node.Right, value);
                 }
             }
+        }
+
+        public void Traverse()
+        {
+            Traverse(_head);
+        }
+
+        private IEnumerator<T> Traverse(Node<T> node)
+        {
+            Stack<Node<T>> wayBack = new Stack<Node<T>>();
+            Node<T> current = node;
+            Node<T> prev = node;
+            while (true)
+            {
+                if (current.Right != prev)
+                {
+                    if (current.Left != null && current.Left != prev)
+                    {
+                        wayBack.Push(current);
+                        current = current.Left;
+                        continue;
+                    }
+                    yield return current.Value;
+                    if (current.Right != null)
+                    {
+                        wayBack.Push(current);
+                        current = current.Right;
+                        continue;
+                    }
+                }
+
+                if (wayBack.Count == 0)
+                    break;
+                prev = current;
+                current = wayBack.Pop();
+            }
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return Traverse(_head);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

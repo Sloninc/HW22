@@ -5,13 +5,7 @@
         static void Main()
         {
             Tree<Employee> tree = new Tree<Employee>();
-            //tree.Add(new Employee("Petr", 1000));
-            //tree.Add(new Employee("Vasiliy", 1200));
-            //tree.Add(new Employee("Andrey", 1100));
-            //tree.Add(new Employee("Vladimir", 900));
-            //tree.Add(new Employee("Alex", 800));
-            //tree.Add(new Employee("Elena", 1300));
-            //tree.Add(new Employee("Nikolay", 700));
+
             while (true)
             {
                 Console.Write("Введите имя сотрудника или нажмите Enter для выхода: ");
@@ -37,6 +31,10 @@
                 while (!isValidSalary);
                 Console.WriteLine(Environment.NewLine);
             }
+            Console.WriteLine(Environment.NewLine);
+            Console.WriteLine("Вывод имен сотрудников и их зарплат в порядке возрастания зарплат");
+            foreach (Employee emp in tree)
+                Console.WriteLine($"{emp.Name} - {emp.Salary}");
             Console.ReadLine(); 
         }
     }
