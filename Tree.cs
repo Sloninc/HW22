@@ -75,7 +75,8 @@ namespace HW22
 
         private IEnumerator<T> Traverse(Node<T> node)
         {
-            Stack<Node<T>> wayBack = new Stack<Node<T>>();
+            //для получения значений используем "конечный автомат" со стеком возврата
+            Stack<Node<T>> wayBack = new Stack<Node<T>>(); 
             Node<T> current = node;
             Node<T> prev = node;
             while (true)
@@ -96,7 +97,6 @@ namespace HW22
                         continue;
                     }
                 }
-
                 if (wayBack.Count == 0)
                     break;
                 prev = current;
