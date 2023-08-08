@@ -1,36 +1,33 @@
-﻿namespace HW22
+﻿using System.Text.Json;
+
+namespace HW22
 {
     internal class Program
     {
-        static void Main()
+        static async Task Main()
         {
             Tree<Employee> _tree = new Tree<Employee>();
             while (true)
             {
-                InputEmployee(_tree);
-                Console.WriteLine(Environment.NewLine);
                 while (true)
                 {
-                    Console.Write("Сохранить сотрудников в файл? y/n: ");
+                    Console.Write("Загрузить сотрудников из файла? y/n: ");
                     ConsoleKeyInfo keyInfo = Console.ReadKey();
                     if (keyInfo.KeyChar == 'y')
                     {
-                        //CleanConsole();
-                        //SafeToFile(_tree);
+                        CleanConsole(Console.CursorTop);
+                        ReadFromFile(_tree);
                         break;
                     }
                     else if (keyInfo.KeyChar == 'n')
                     {
-                        Console.SetCursorPosition(0, Console.CursorTop);
-                        Console.Write(new String(' ', 120));
-                        Console.SetCursorPosition(0, Console.CursorTop);
+                        CleanConsole(Console.CursorTop);
+                        InputEmployee(_tree);
                         break;
                     }
-                    else 
+                    else
                     {
-                        Console.SetCursorPosition(0, Console.CursorTop);
-                        Console.Write(new String(' ',120));
-                        Console.SetCursorPosition(0, Console.CursorTop);
+                        CleanConsole(Console.CursorTop);
                     }
                 }
                 PrintEmployee(_tree);
@@ -49,11 +46,11 @@
                     }
                     else if (input && res == 1)
                     {
-                        CleanConsole();
+                        CleanConsole(Console.CursorTop - 1);
                         Console.WriteLine(Environment.NewLine);
                         FindEmployee(_tree);
                     }  
-                    else CleanConsole();
+                    else CleanConsole(Console.CursorTop - 1);
                 }
             }
         }
@@ -74,12 +71,33 @@
                         tree.Add(new Employee(name, salary));
                     else
                     {
-                        CleanConsole();
+                        CleanConsole(Console.CursorTop - 1);
                         Console.Write("Значеие ЗП должно быть целым положительным числом, " +
                         "введите размер ЗП еще раз: ");
                     }
                 }
                 while (!isValidSalary);
+            }
+            Console.WriteLine(Environment.NewLine);
+            while (true)
+            {
+                Console.Write("Сохранить сотрудников в файл? y/n: ");
+                ConsoleKeyInfo keyInfo = Console.ReadKey();
+                if (keyInfo.KeyChar == 'y')
+                {
+                    CleanConsole(Console.CursorTop);
+                    SafeToFile(tree);
+                    break;
+                }
+                else if (keyInfo.KeyChar == 'n')
+                {
+                    CleanConsole(Console.CursorTop);
+                    break;
+                }
+                else
+                {
+                    CleanConsole(Console.CursorTop);
+                }
             }
         }
         static void PrintEmployee(Tree<Employee> tree)
@@ -114,18 +132,45 @@
                 }
                 else
                 {
-                    CleanConsole();
+                    CleanConsole(Console.CursorTop - 1);
                     Console.Write("Значеие ЗП должно быть целым положительным числом, " +
                     "введите размер ЗП еще раз: ");
                 }
             }
             while (!isValidSalary);
         }
-        static void CleanConsole()
+        static async Task SafeToFile(Tree<Employee> tree) 
         {
-            Console.SetCursorPosition(0, Console.CursorTop - 1);
+            if (tree.Count == 0)
+            {
+                Console.WriteLine("Дерево не содержит ни одного элемента");
+                return;
+            }
+            using (FileStream fs = new FileStream("Employees.json", FileMode.OpenOrCreate))
+            {
+                foreach(Employee emp in tree)
+                {
+                    await JsonSerializer.SerializeAsync<Employee>(fs, emp);
+                }
+                Console.WriteLine("Данные сотрудников были сохранены в файл Employees.json");
+            }
+        }
+        static async Task ReadFromFile(Tree<Employee> tree)
+        {
+            using (FileStream fs = new FileStream("Employees.json", FileMode.OpenOrCreate))
+            {
+                while (fs.Position < fs.Length)
+                {
+                    var emp = await JsonSerializer.DeserializeAsync<Employee>(fs);
+                    tree.Add(emp);
+                }
+            }
+        }
+        static void CleanConsole(int row)
+        {
+            Console.SetCursorPosition(0, row);
             Console.WriteLine(new String(' ', 120));
-            Console.SetCursorPosition(0, Console.CursorTop - 1);
+            Console.SetCursorPosition(0, row);
         }
     }
 }
