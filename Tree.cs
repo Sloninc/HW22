@@ -13,6 +13,12 @@ namespace HW22
 
         private int _count;
         public int Count { get { return _count; } }
+
+        public void Clear()
+        {
+            _head = null;
+            _count = 0;
+        }
         public void Add(T value)
         {
             // Первый случай: дерево пустое     
@@ -68,15 +74,60 @@ namespace HW22
             }
         }
 
+        // Метод Find возвращает первый найденный узел.
+        // Если значение не найдено, метод возвращает null.
+        
+        public T Find(Func<T,int> predicate)
+        {
+            // Поиск значения в дереве.     
+
+            Node<T>? current = _head;
+
+
+            while (current != null)
+            {
+                int result = predicate(current.Value);
+                if (result > 0)
+                {
+                    // Если искомое значение меньше значение текущего узла - переходим к левому потомку.             
+
+                    current = current.Left;
+                }
+                else if (result < 0)
+                {
+                    // Если искомое значение больше значение текущего узла - переходим к правому потомку.
+
+
+                    current = current.Right;
+                }
+                else
+                {
+                    // Искомый элемент найден             
+                    break;
+                }
+            }
+            if (current == null)
+                return default(T);
+            return current.Value;
+        }
         public void Traverse()
         {
+            //try
+            //{
             Traverse(_head);
+            //}
+            //catch
+            //{
+            //    throw new NullReferenceException();
+            //}
         }
 
         private IEnumerator<T> Traverse(Node<T> node)
         {
+            if(node==null)
+                yield break;
             //для получения значений используем "конечный автомат" со стеком возврата
-            Stack<Node<T>> wayBack = new Stack<Node<T>>(); 
+            Stack<Node<T>> wayBack = new Stack<Node<T>>();
             Node<T> current = node;
             Node<T> prev = node;
             while (true)
