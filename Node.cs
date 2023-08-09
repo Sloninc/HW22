@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace HW22
 {
+    /// <summary>
+    /// Класс для вершин деревьев
+    /// </summary>
+    /// <typeparam name="TNode"></typeparam>
     public class Node<TNode>: IComparable<TNode> where TNode : IComparable<TNode>
     {
         public Node(TNode value)

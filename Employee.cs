@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace HW22
 {
+    /// <summary>
+    /// Класс сотрудников
+    /// </summary>
     public class Employee: IComparable<Employee>
     {
         public Employee(string name, int salary)

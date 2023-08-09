@@ -58,6 +58,10 @@ namespace HW22
                 }
             }
         }
+        /// <summary>
+        /// Ввод данных сотрудников пользователем.
+        /// </summary>
+        /// <returns></returns>
         static async Task InputEmployee()
         {
             while (true)
@@ -104,6 +108,9 @@ namespace HW22
                 }
             }
         }
+        /// <summary>
+        /// Вывод имен сотрудников в консоле
+        /// </summary>
         static void PrintEmployee()
         {
             if (_tree.Count == 0)
@@ -115,6 +122,9 @@ namespace HW22
             foreach (Employee emp in _tree)
                 Console.WriteLine($"{emp.Name} - {emp.Salary}");
         }
+        /// <summary>
+        /// Поиск сотрудника по размеру ЗП
+        /// </summary>
         static void FindEmployee()
         {
             if (_tree.Count == 0)
@@ -143,6 +153,10 @@ namespace HW22
             }
             while (!isValidSalary);
         }
+        /// <summary>
+        /// Сохранение дерева сотрудников в файл
+        /// </summary>
+        /// <returns></returns>
         static async Task SafeToFile() 
         {
             if (_tree.Count == 0)
@@ -158,6 +172,10 @@ namespace HW22
                 Console.WriteLine(Environment.NewLine);
             }
         }
+        /// <summary>
+        /// Чтение сотрудников из файла и заполнение дерева
+        /// </summary>
+        /// <returns></returns>
         static async Task ReadFromFile()
         {
             if (File.Exists("Employees.json"))

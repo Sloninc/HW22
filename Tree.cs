@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace HW22
 {
+    /// <summary>
+    /// Класс двоичного дерева
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class Tree<T>  : IEnumerable<T> where T : IComparable<T>
     {
         private Node<T>? _head;
