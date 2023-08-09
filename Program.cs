@@ -4,9 +4,9 @@ namespace HW22
 {
     internal class Program
     {
+        static Tree<Employee>? _tree = new Tree<Employee>();
         static async Task Main()
         {
-            Tree<Employee> _tree = new Tree<Employee>();
             while (true)
             {
                 while (true)
@@ -16,13 +16,14 @@ namespace HW22
                     if (keyInfo.KeyChar == 'y')
                     {
                         CleanConsole(Console.CursorTop);
-                        ReadFromFile(_tree);
+                        Tree<Employee> _tree = new Tree<Employee>(); 
+                        await ReadFromFile();
                         break;
                     }
                     else if (keyInfo.KeyChar == 'n')
                     {
                         CleanConsole(Console.CursorTop);
-                        InputEmployee(_tree);
+                        await InputEmployee();
                         break;
                     }
                     else
@@ -30,31 +31,34 @@ namespace HW22
                         CleanConsole(Console.CursorTop);
                     }
                 }
-                PrintEmployee(_tree);
-                Console.WriteLine(Environment.NewLine);
-                FindEmployee(_tree);
-                Console.WriteLine(Environment.NewLine);
-                while (true)
+                if(_tree.Count != 0)
                 {
-                    Console.Write("Ввести цифру 0 - переход к началу программы или 1 - снова поиск зарплаты: ");
-                    var input = int.TryParse(Console.ReadLine(), out int res);
-                    if (input && res == 0)
+                    PrintEmployee();
+                    Console.WriteLine(Environment.NewLine);
+                    FindEmployee();
+                    Console.WriteLine(Environment.NewLine);
+                    while (true)
                     {
-                        _tree.Clear();
-                        Console.Clear();
-                        break;
+                        Console.Write("Ввести цифру 0 - переход к началу программы или 1 - снова поиск зарплаты: ");
+                        var input = int.TryParse(Console.ReadLine(), out int res);
+                        if (input && res == 0)
+                        {
+                            _tree.Clear();
+                            Console.Clear();
+                            break;
+                        }
+                        else if (input && res == 1)
+                        {
+                            CleanConsole(Console.CursorTop - 1);
+                            Console.WriteLine(Environment.NewLine);
+                            FindEmployee();
+                        }
+                        else CleanConsole(Console.CursorTop - 1);
                     }
-                    else if (input && res == 1)
-                    {
-                        CleanConsole(Console.CursorTop - 1);
-                        Console.WriteLine(Environment.NewLine);
-                        FindEmployee(_tree);
-                    }  
-                    else CleanConsole(Console.CursorTop - 1);
                 }
             }
         }
-        static void InputEmployee(Tree<Employee> tree)
+        static async Task InputEmployee()
         {
             while (true)
             {
@@ -68,7 +72,7 @@ namespace HW22
                 {
                     isValidSalary = int.TryParse(Console.ReadLine(), out int salary);
                     if (isValidSalary)
-                        tree.Add(new Employee(name, salary));
+                        _tree.Add(new Employee(name, salary));
                     else
                     {
                         CleanConsole(Console.CursorTop - 1);
@@ -86,7 +90,7 @@ namespace HW22
                 if (keyInfo.KeyChar == 'y')
                 {
                     CleanConsole(Console.CursorTop);
-                    SafeToFile(tree);
+                    await SafeToFile();
                     break;
                 }
                 else if (keyInfo.KeyChar == 'n')
@@ -100,20 +104,20 @@ namespace HW22
                 }
             }
         }
-        static void PrintEmployee(Tree<Employee> tree)
+        static void PrintEmployee()
         {
-            if (tree.Count == 0)
+            if (_tree.Count == 0)
             {
                 Console.WriteLine("Дерево не содержит ни одного элемента");
                 return;
             }
             Console.WriteLine("Вывод имен сотрудников и их зарплат в порядке возрастания зарплат");
-            foreach (Employee emp in tree)
+            foreach (Employee emp in _tree)
                 Console.WriteLine($"{emp.Name} - {emp.Salary}");
         }
-        static void FindEmployee(Tree<Employee> tree)
+        static void FindEmployee()
         {
-            if (tree.Count == 0)
+            if (_tree.Count == 0)
             {
                 Console.WriteLine("Дерево не содержит ни одного элемента");
                 return;
@@ -126,7 +130,7 @@ namespace HW22
                 isValidSalary = int.TryParse(Console.ReadLine(), out int salary);
                 if (isValidSalary)
                 {
-                    employee = tree.Find(x => x.Salary.CompareTo(salary));
+                    employee = _tree.Find(x => x.Salary.CompareTo(salary));
                     string s = employee != null ? $"Такую ЗП имеет сотрудник {employee.Name}" : "сотрудник c такой ЗП не найден";
                     Console.WriteLine(s);
                 }
@@ -139,32 +143,34 @@ namespace HW22
             }
             while (!isValidSalary);
         }
-        static async Task SafeToFile(Tree<Employee> tree) 
+        static async Task SafeToFile() 
         {
-            if (tree.Count == 0)
+            if (_tree.Count == 0)
             {
                 Console.WriteLine("Дерево не содержит ни одного элемента");
                 return;
             }
-            using (FileStream fs = new FileStream("Employees.json", FileMode.OpenOrCreate))
+            using (FileStream fs = new FileStream("Employees.json", FileMode.Create))
             {
-                foreach(Employee emp in tree)
-                {
-                    await JsonSerializer.SerializeAsync<Employee>(fs, emp);
-                }
+                var employees = _tree.ToList<Employee>();
+                await JsonSerializer.SerializeAsync<List<Employee>>(fs, employees);
                 Console.WriteLine("Данные сотрудников были сохранены в файл Employees.json");
+                Console.WriteLine(Environment.NewLine);
             }
         }
-        static async Task ReadFromFile(Tree<Employee> tree)
+        static async Task ReadFromFile()
         {
-            using (FileStream fs = new FileStream("Employees.json", FileMode.OpenOrCreate))
+            if (File.Exists("Employees.json"))
             {
-                while (fs.Position < fs.Length)
+                _tree.Clear();
+                using (FileStream fs = new FileStream("Employees.json", FileMode.Open))
                 {
-                    var emp = await JsonSerializer.DeserializeAsync<Employee>(fs);
-                    tree.Add(emp);
+                    var employees = await JsonSerializer.DeserializeAsync<List<Employee>>(fs);
+                    for (int i = 0; i < employees.Count; i++)
+                        _tree.Add(employees[i]);
                 }
             }
+            else Console.WriteLine("Файл Employees.json не найден");
         }
         static void CleanConsole(int row)
         {
